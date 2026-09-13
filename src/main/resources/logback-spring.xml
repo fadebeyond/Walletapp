@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- One JSON object per line on stdout, so any log drain can parse it without a shipper config. -->
+    <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>correlation_id</includeMdcKeyName>
+            <includeMdcKeyName>user_id</includeMdcKeyName>
+            <customFields>{"service":"wallet-service"}</customFields>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <message>message</message>
+                <thread>thread</thread>
+                <logger>logger</logger>
+                <levelValue>[ignore]</levelValue>
+                <version>[ignore]</version>
+            </fieldNames>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="json"/>
+    </root>
+    <logger name="dev.gaurang.wallet" level="INFO"/>
+</configuration>

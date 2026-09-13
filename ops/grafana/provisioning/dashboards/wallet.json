@@ -1,0 +1,55 @@
+{
+  "title": "Wallet service",
+  "uid": "wallet-service",
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Request rate by outcome",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (outcome) (rate(http_server_requests_seconds_count[1m]))",
+          "legendFormat": "{{outcome}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency p99 by endpoint",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le, uri) (rate(http_server_requests_seconds_bucket[1m])))",
+          "legendFormat": "{{uri}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Error rate (5xx share)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count[1m])), 0.001)",
+          "legendFormat": "5xx share"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Domain events",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "expr": "sum(rate(wallet_transfers_created_total[1m]))", "legendFormat": "created" },
+        { "expr": "sum(rate(wallet_transfers_completed_total[1m]))", "legendFormat": "completed" },
+        { "expr": "sum(rate(wallet_transfers_declined_total[1m]))", "legendFormat": "declined (insufficient funds)" },
+        { "expr": "sum(rate(wallet_transfers_idempotent_replays_total[1m]))", "legendFormat": "idempotent replays" },
+        { "expr": "sum(rate(wallet_transfers_idempotency_conflicts_total[1m]))", "legendFormat": "idempotency conflicts" },
+        { "expr": "sum(rate(wallet_wallets_created_total[1m]))", "legendFormat": "wallets created" }
+      ]
+    }
+  ]
+}

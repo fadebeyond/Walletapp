@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: wallet
+      POSTGRES_USER: wallet
+      POSTGRES_PASSWORD: wallet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet -d wallet"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/wallet
+      SPRING_DATASOURCE_USERNAME: wallet
+      SPRING_DATASOURCE_PASSWORD: wallet
+      ADMIN_TOKEN: local-admin-token
+    ports:
+      - "8080:8080"
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    depends_on:
+      - app
+    volumes:
+      - ./ops/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    depends_on:
+      - prometheus
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
