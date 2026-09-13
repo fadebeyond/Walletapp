@@ -88,13 +88,12 @@ SENDER_BEFORE="$(balance_of 0)"
 RECEIVER_BEFORE="$(balance_of 1)"
 : > "$WORK_DIR/jobs2"
 for i in $(seq 1 "$IDEMPOTENCY_STORM"); do
-  echo "curl -sS -X POST '$BASE_URL/transfers' -H 'Authorization: Bearer ${TOKENS[0]}' -H 'Content-Type: application/json' -d '$STORM_BODY' -o '$WORK_DIR/t$i.json' -w '%{http_code}\n' >> '$WORK_DIR/codes2'" >> "$WORK_DIR/jobs2"
+  echo "curl -sS -X POST '$BASE_URL/transfers' -H 'Authorization: Bearer ${TOKENS[0]}' -H 'Content-Type: application/json' -d '$STORM_BODY' -o '$WORK_DIR/t$i.json' -w '%{http_code}\n' > '$WORK_DIR/code2-$i'" >> "$WORK_DIR/jobs2"
 done
-: > "$WORK_DIR/codes2"
 run_parallel "$WORK_DIR/jobs2"
 DISTINCT_TRANSFERS="$(jq -r .id "$WORK_DIR"/t*.json | sort -u | wc -l | tr -d ' ')"
 DISTINCT_BODIES="$(jq -Sc . "$WORK_DIR"/t*.json | sort -u | wc -l | tr -d ' ')"
-DISTINCT_CODES="$(sort -u "$WORK_DIR/codes2" | tr '\n' ' ')"
+DISTINCT_CODES="$(cat "$WORK_DIR"/code2-* | sort -u | tr '\n' ' ')"
 check "one transfer id across all $IDEMPOTENCY_STORM responses" "$DISTINCT_TRANSFERS" "1"
 check "every response body identical" "$DISTINCT_BODIES" "1"
 check "every response status identical" "$(echo "$DISTINCT_CODES" | wc -w | tr -d ' ')" "1"
@@ -116,13 +115,15 @@ for i in $(seq 1 "$CONTENTION_TRANSFERS"); do
   amount=$TRANSFER_PAISE
   [ $(( i % 17 )) -eq 0 ] && amount=$(( SEED_PAISE * 50 ))   # deliberately unaffordable
   body="{\"from\":\"${WALLETS[$from]}\",\"to\":\"${WALLETS[$to]}\",\"amount_paise\":$amount,\"idempotency_key\":\"load-$i-$RUN_ID\"}"
-  echo "curl -sS -o /dev/null -X POST '$BASE_URL/transfers' -H 'Authorization: Bearer ${TOKENS[$from]}' -H 'Content-Type: application/json' -d '$body' -w '%{http_code}\n' >> '$WORK_DIR/codes3'" >> "$WORK_DIR/jobs3"
+  echo "curl -sS -o /dev/null -X POST '$BASE_URL/transfers' -H 'Authorization: Bearer ${TOKENS[$from]}' -H 'Content-Type: application/json' -d '$body' -w '%{http_code}\n' > '$WORK_DIR/code3-$i'" >> "$WORK_DIR/jobs3"
 done
-: > "$WORK_DIR/codes3"
 run_parallel "$WORK_DIR/jobs3"
+cat "$WORK_DIR"/code3-* > "$WORK_DIR/codes3"
 SERVER_ERRORS="$(grep -c '^5' "$WORK_DIR/codes3" || true)"
 DECLINED="$(grep -c '^422' "$WORK_DIR/codes3" || true)"
-echo "  $(wc -l < "$WORK_DIR/codes3" | tr -d ' ') sent, $DECLINED declined for insufficient funds, $SERVER_ERRORS server errors"
+SENT="$(wc -l < "$WORK_DIR/codes3" | tr -d ' ')"
+echo "  $SENT sent, $DECLINED declined for insufficient funds, $SERVER_ERRORS server errors"
+check "every transfer got a response" "$SENT" "$(wc -l < "$WORK_DIR/jobs3" | tr -d ' ')"
 check "no server errors under contention" "$SERVER_ERRORS" "0"
 check "total balance unchanged" "$(total_balance)" "$TOTAL_BEFORE"
 

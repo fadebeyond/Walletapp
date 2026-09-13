@@ -11,6 +11,8 @@ docker compose up --build          # app + Postgres + Prometheus + Grafana
 ./scripts/burst.sh http://localhost:8080
 ```
 
+The burst script needs `bash`, `curl` and `jq`. On Windows run it from Git Bash.
+
 The app is on `:8080`, Prometheus on `:9090`, Grafana on `:3000` (anonymous, dashboard "Wallet service").
 `docker compose up` is the only command needed; Flyway creates the schema on first boot.
 
