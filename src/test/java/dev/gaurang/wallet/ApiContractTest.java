@@ -105,6 +105,13 @@ class ApiContractTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @DisplayName("health and metrics are reachable without a token, so probes and scrapers work")
+    void operationalEndpointsAreUnauthenticated() {
+        assertThat(exchange(HttpMethod.GET, "/health", null, null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(rest.getForEntity("/metrics", String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
     @DisplayName("every response carries a correlation id")
     void correlationIdIsEchoed() {
         assertThat(exchange(HttpMethod.POST, "/wallets", token, null).getHeaders().getFirst("X-Correlation-Id"))

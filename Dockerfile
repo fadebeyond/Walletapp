@@ -19,4 +19,4 @@ USER wallet
 EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=3s --start-period=45s --retries=3 \
   CMD curl -fsS http://localhost:8080/health || exit 1
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=60.0", "org.springframework.boot.loader.launch.JarLauncher"]

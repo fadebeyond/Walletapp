@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -33,10 +34,14 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         this.objectMapper = objectMapper;
     }
 
+    /** Token issuing, the admin token endpoint and the operational endpoints authenticate their own way. */
+    private static final List<String> UNAUTHENTICATED_PREFIXES =
+            List.of("/auth/", "/admin/", "/health", "/metrics", "/info", "/actuator");
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/actuator") || path.startsWith("/auth/") || path.startsWith("/admin/");
+        return UNAUTHENTICATED_PREFIXES.stream().anyMatch(path::startsWith);
     }
 
     @Override

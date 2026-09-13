@@ -39,7 +39,16 @@ issue_token() { curl -sS -X POST "$BASE_URL/auth/tokens" -H 'Content-Type: appli
 run_parallel() { xargs -P "$PARALLELISM" -d '\n' -n 1 bash -c < "$1"; }
 
 say "Target $BASE_URL"
-curl -fsS "$BASE_URL/health" >/dev/null || { echo "service is not healthy"; exit 1; }
+printf '  waiting for the service to answer'
+for attempt in $(seq 1 40); do
+  if curl -fsS --max-time 10 "$BASE_URL/health" >/dev/null 2>&1; then
+    printf ' up\n'
+    break
+  fi
+  printf '.'
+  sleep 5
+  [ "$attempt" -eq 40 ] && { printf '\n'; echo "service never became healthy at $BASE_URL"; exit 1; }
+done
 
 # ---------------------------------------------------------------- probe 1
 say "Probe 1 — concurrent get-or-create ($GET_OR_CREATE_BURST simultaneous POST /wallets)"

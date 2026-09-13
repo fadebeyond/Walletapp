@@ -69,17 +69,14 @@ mvn test        # needs Docker; Testcontainers starts a throwaway Postgres
 ```
 
 `InvariantsTest` drives the three graded races through HTTP; `ApiContractTest` covers the edge cases
-listed in `docs/EDGE-CASES.md`.
+around the money path — decimal amounts, self-transfers, foreign wallets, declined replays.
 
 ## AI Usage
 
 Where the approach was directed versus where a generated design was accepted is written out in the
 last section of `WRITEUP.md`.
 
-## Documents
+## Write-up
 
-- `WRITEUP.md` — the one-page write-up: data model, mechanism, rejected alternatives, idempotency
-  placement, consistency call, AI disclosure, cost.
-- `docs/DESIGN.md` — the same ground at more length.
-- `docs/EDGE-CASES.md` — every edge case and how it is handled.
-- `docs/OVERVIEW.md` — what this is, and the first thing worth improving.
+`WRITEUP.md` — data model, the simplest-correct mechanism and the alternatives rejected, where
+idempotency lives, the consistency call, AI disclosure, and the cost note.
