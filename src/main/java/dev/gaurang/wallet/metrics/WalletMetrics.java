@@ -18,7 +18,7 @@ public class WalletMetrics {
 
     public WalletMetrics(MeterRegistry registry) {
         this.registry = registry;
-        this.walletsCreated = Counter.builder("wallet_wallets_created_total")
+        this.walletsCreated = Counter.builder("wallet_wallets_opened_total")
                 .description("Wallets actually inserted by get-or-create").register(registry);
         this.walletsReused = Counter.builder("wallet_wallets_reused_total")
                 .description("Get-or-create calls that returned an existing wallet").register(registry);
@@ -39,7 +39,7 @@ public class WalletMetrics {
     }
 
     public void transferCreated(TransferKind kind) {
-        registry.counter("wallet_transfers_created_total", "kind", kind.name()).increment();
+        registry.counter("wallet_transfers_initiated_total", "kind", kind.name()).increment();
     }
 
     public void transferCompleted(TransferKind kind) {

@@ -57,10 +57,10 @@ Logs are one JSON object per line on stdout, carrying `correlation_id` (echoed a
 docker compose logs -f app | jq 'select(.event | startswith("transfer"))'
 ```
 
-`/metrics` exposes request rate, latency histograms (p50/p95/p99) and error rate from Actuator, plus
-`wallet_transfers_created_total`, `wallet_transfers_completed_total`, `wallet_transfers_declined_total`,
+`/metrics` exposes request rate, latency histograms (p99 via `histogram_quantile`) and error rate from Actuator, plus
+`wallet_transfers_initiated_total`, `wallet_transfers_completed_total`, `wallet_transfers_declined_total`,
 `wallet_transfers_idempotent_replays_total`, `wallet_transfers_idempotency_conflicts_total`,
-`wallet_wallets_created_total`, `wallet_wallets_reused_total`.
+`wallet_wallets_opened_total`, `wallet_wallets_reused_total`.
 
 ## Tests
 

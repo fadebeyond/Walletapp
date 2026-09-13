@@ -35,10 +35,13 @@ management:
         enabled: true
   metrics:
     distribution:
+      # Buckets, not client-side quantiles: only buckets can be aggregated across instances.
       percentiles-histogram:
         http.server.requests: true
-      percentiles:
-        http.server.requests: 0.5,0.95,0.99
+      minimum-expected-value:
+        http.server.requests: 5ms
+      maximum-expected-value:
+        http.server.requests: 5s
     tags:
       application: wallet-service
 

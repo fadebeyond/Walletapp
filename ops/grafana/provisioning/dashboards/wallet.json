@@ -43,12 +43,12 @@
       "title": "Domain events",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
       "targets": [
-        { "expr": "sum(rate(wallet_transfers_created_total[1m]))", "legendFormat": "created" },
+        { "expr": "sum(rate(wallet_transfers_initiated_total[1m]))", "legendFormat": "created" },
         { "expr": "sum(rate(wallet_transfers_completed_total[1m]))", "legendFormat": "completed" },
         { "expr": "sum(rate(wallet_transfers_declined_total[1m]))", "legendFormat": "declined (insufficient funds)" },
         { "expr": "sum(rate(wallet_transfers_idempotent_replays_total[1m]))", "legendFormat": "idempotent replays" },
         { "expr": "sum(rate(wallet_transfers_idempotency_conflicts_total[1m]))", "legendFormat": "idempotency conflicts" },
-        { "expr": "sum(rate(wallet_wallets_created_total[1m]))", "legendFormat": "wallets created" }
+        { "expr": "sum(rate(wallet_wallets_opened_total[1m]))", "legendFormat": "wallets created" }
       ]
     }
   ]
